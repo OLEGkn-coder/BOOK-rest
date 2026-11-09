@@ -1,6 +1,6 @@
 # Books REST API
 
-REST API для бібліотеки книг. Node.js, Express, MongoDB. Доступ до бази даних через DAO.
+REST API для бібліотеки книг. Реалізовано з Node.js, Express, MongoDB, доступ до бази даних через DAO.
 
 ## Структура
 
