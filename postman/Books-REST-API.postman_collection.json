@@ -1,0 +1,1124 @@
+{
+  "info": {
+    "name": "Books REST API",
+    "description": "Запити до REST API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "bookId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "1. CRUD",
+      "item": [
+        {
+          "name": "Отримати всі книги",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є список книг\", () => pm.expect(body.books).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Додати книгу",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"The Pragmatic Programmer\",\n  \"author\": \"David Thomas, Andrew Hunt\",\n  \"genre\": \"Програмування\",\n  \"year\": 2019,\n  \"price\": 1350,\n  \"totalCopies\": 2,\n  \"isbn\": \"978-0-13-595705-9\",\n  \"description\": \"Книга про практики розробки програм.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 201\", () => pm.response.to.have.status(201));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Книгу створено\", () => { pm.expect(body.id).to.be.a(\"string\"); pm.expect(body.availableCopies).to.eql(2); });",
+                  "pm.collectionVariables.set(\"bookId\", body.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Отримати книгу за ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Той самий ID\", () => pm.expect(body.id).to.eql(pm.collectionVariables.get(\"bookId\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Оновити книгу (PUT)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"The Pragmatic Programmer\",\n  \"author\": \"David Thomas, Andrew Hunt\",\n  \"genre\": \"Програмування\",\n  \"year\": 2019,\n  \"price\": 1400,\n  \"totalCopies\": 3,\n  \"isbn\": \"978-0-13-595705-9\",\n  \"description\": \"Книга про практики розробки програм.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Дані оновлено\", () => { pm.expect(body.price).to.eql(1400); pm.expect(body.availableCopies).to.eql(3); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Змінити ціну (PATCH)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 1299.99\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Змінено тільки ціну\", () => { pm.expect(body.price).to.eql(1299.99); pm.expect(body.title).to.eql(\"The Pragmatic Programmer\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "2. Пошук і фільтрація",
+      "item": [
+        {
+          "name": "Книги за жанром, нові спочатку",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books?genre=програмування&sort=-year",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"],
+              "query": [
+                {
+                  "key": "genre",
+                  "value": "програмування"
+                },
+                {
+                  "key": "sort",
+                  "value": "-year"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Тільки програмування\", () => body.books.forEach((b) => pm.expect(b.genre).to.eql(\"програмування\")));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Пошук за текстом",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books?search=javascript",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"],
+              "query": [
+                {
+                  "key": "search",
+                  "value": "javascript"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Щось знайдено\", () => pm.expect(body.total).to.be.above(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Роки 1900-1950, лише доступні",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books?minYear=1900&maxYear=1950&available=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"],
+              "query": [
+                {
+                  "key": "minYear",
+                  "value": "1900"
+                },
+                {
+                  "key": "maxYear",
+                  "value": "1950"
+                },
+                {
+                  "key": "available",
+                  "value": "true"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Фільтр працює\", () => body.books.forEach((b) => { pm.expect(b.year).to.be.within(1900, 1950); pm.expect(b.availableCopies).to.be.above(0); }));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Друга сторінка по 5 книг",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books?page=2&limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Сторінка 2\", () => pm.expect(body.page).to.eql(2));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "3. Бізнес-логіка",
+      "item": [
+        {
+          "name": "Видати книгу (1)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/borrow",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "borrow"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Видано один примірник\", () => { pm.expect(body.borrowedCopies).to.eql(1); pm.expect(body.availableCopies).to.eql(2); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Видати книгу (2)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/borrow",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "borrow"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Видати книгу (3)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/borrow",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "borrow"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Вільних не лишилось\", () => pm.expect(body.availableCopies).to.eql(0));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Видати, коли вільних немає (409)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/borrow",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "borrow"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 409\", () => pm.response.to.have.status(409));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Зменшити кількість нижче виданих (409)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totalCopies\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 409\", () => pm.response.to.have.status(409));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Видалити книгу, яку не повернули (409)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 409\", () => pm.response.to.have.status(409));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Повернути книгу",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "return"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Примірник повернуто\", () => pm.expect(body.borrowedCopies).to.eql(2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Оцінити книгу на 5",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/rate",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "rate"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 5\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Рейтинг 5\", () => { pm.expect(body.rating).to.eql(5); pm.expect(body.ratingCount).to.eql(1); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Оцінити книгу на 4",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/rate",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "rate"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Середній рейтинг 4.5\", () => { pm.expect(body.rating).to.eql(4.5); pm.expect(body.ratingCount).to.eql(2); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Найкраще оцінені книги",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/top-rated?limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "top-rated"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Не більше 5 книг\", () => pm.expect(body.length).to.be.at.most(5));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Найпопулярніші книги",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/popular?limit=5",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "popular"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Список книг\", () => pm.expect(body).to.be.an(\"array\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Статистика",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "stats"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є загальні дані і жанри\", () => { pm.expect(body.totals.books).to.be.above(0); pm.expect(body.genres).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Помилки",
+      "item": [
+        {
+          "name": "Некоректні дані (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"author\": \"Автор\",\n  \"genre\": \"роман\",\n  \"year\": 3000,\n  \"price\": -5,\n  \"totalCopies\": 0,\n  \"isbn\": \"123\",\n  \"pages\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", () => pm.response.to.have.status(400));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Помилки по полях\", () => pm.expect(body.errors.map((e) => e.field)).to.include.members([\"title\", \"year\", \"price\", \"totalCopies\", \"isbn\", \"pages\"]));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Поле, яке не можна передавати (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"The Pragmatic Programmer\",\n  \"author\": \"David Thomas, Andrew Hunt\",\n  \"genre\": \"Програмування\",\n  \"year\": 2019,\n  \"price\": 1350,\n  \"totalCopies\": 2,\n  \"description\": \"Книга про практики розробки програм.\",\n  \"availableCopies\": 100\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", () => pm.response.to.have.status(400));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Некоректний JSON (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{ \"title\": \"Книга\", }",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", () => pm.response.to.have.status(400));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Такий ISBN вже є (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"The Pragmatic Programmer\",\n  \"author\": \"David Thomas, Andrew Hunt\",\n  \"genre\": \"Програмування\",\n  \"year\": 2019,\n  \"price\": 1350,\n  \"totalCopies\": 2,\n  \"isbn\": \"978-0-13-595705-9\",\n  \"description\": \"Книга про практики розробки програм.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 409\", () => pm.response.to.have.status(409));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Оцінка не від 1 до 5 (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/rate",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "rate"]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"score\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", () => pm.response.to.have.status(400));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Книги не існує (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/000000000000000000000000",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "000000000000000000000000"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", () => pm.response.to.have.status(404));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Некоректний ID (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "abc"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", () => pm.response.to.have.status(404));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Невідоме поле сортування (400)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books?sort=pages",
+              "host": ["{{baseUrl}}"],
+              "path": ["books"],
+              "query": [
+                {
+                  "key": "sort",
+                  "value": "pages"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 400\", () => pm.response.to.have.status(400));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Неіснуючий маршрут (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/authors",
+              "host": ["{{baseUrl}}"],
+              "path": ["authors"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", () => pm.response.to.have.status(404));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Видалення",
+      "item": [
+        {
+          "name": "Повернути книгу (2)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "return"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Повернути книгу (3)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "return"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 200\", () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Повернути, коли нічого не видано (409)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}/return",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}", "return"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 409\", () => pm.response.to.have.status(409));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Видалити книгу",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 204\", () => pm.response.to.have.status(204));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Отримати видалену книгу (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/books/{{bookId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["books", "{{bookId}}"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Статус 404\", () => pm.response.to.have.status(404));",
+                  "const body = pm.response.json();",
+                  "pm.test(\"Є повідомлення про помилку\", () => pm.expect(body.message).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
